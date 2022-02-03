@@ -28,9 +28,13 @@ function App() {
         setData([newItem, ...data]);
     };
 
-    const onDelete = (targetId) => {
+    const onRemove = (targetId) => {
         const newDiaryList = data.filter((it) => it.id !== targetId);
         setData(newDiaryList);
+    };
+
+    const onEdit = (targetId, newContent) => {
+        setData(data.map((it) => (it.id === targetId ? { ...it, content: newContent } : it)));
     };
 
     return (
@@ -38,7 +42,7 @@ function App() {
             {/* 조작 함수를 내려 줌 */}
             <DiaryEditor onCreate={onCreate} />
             {/* 데이터만 내려 줌 */}
-            <DiaryList onDelete={onDelete} diaryList={data} />
+            <DiaryList onRemove={onRemove} diaryList={data} onEdit={onEdit} />
         </div>
     );
 }
