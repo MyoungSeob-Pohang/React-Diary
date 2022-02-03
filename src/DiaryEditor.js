@@ -5,7 +5,8 @@ import { useRef, useState } from 'react';
 
 // DiaryEditor 함수는 전체를 감싸는 함수 이다.
 // 파일명과 같으며 함수를 실행한다.
-const DiaryEditor = () => {
+// 데이터조작 함수를 받음
+const DiaryEditor = ({ onCreate }) => {
     // 작성자 Ref
     const authorInput = useRef();
     // 컨텐츠(일기내용) Ref
@@ -43,7 +44,15 @@ const DiaryEditor = () => {
             return;
         }
 
+        // 전달받은 함수를 호출하여 값을 저장시킴
+        onCreate(state.author, state.content, state.emotion);
         alert('저장 성공');
+        // 저장 후 초기값 세팅
+        setState({
+            author: '',
+            content: '',
+            emotion: 1,
+        });
     };
 
     // 렌더링 되는 html
