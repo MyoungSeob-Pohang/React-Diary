@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react/cjs/react.development';
+import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
 import DiaryEditor from './DiaryEditor';
 import DiaryList from './DiaryList';
@@ -12,6 +12,29 @@ function App() {
     const [data, setData] = useState([]);
     // useRef를 사용하여 1씩증가하는 값을 만듬
     const dataId = useRef(0);
+
+    // API 호출 함수
+    const getData = async () => {
+        const res = await fetch('https://jsonplaceholder.typicode.com/comments').then((res) => res.json());
+
+        // 20개 잘라내기
+        const initData = res.slice(0, 20).map((it) => {
+            return {
+                author: it.email,
+                content: it.body,
+                emotion: Math.floor(Math.random() * 5) + 1,
+                create_date: new Date().getTime(),
+                id: dataId.current++,
+            };
+        });
+
+        setData(initData);
+    };
+
+    // Mount 시점에 API 호출
+    useEffect(() => {
+        getData();
+    }, []);
 
     // 작성자 내용 감정을 전달받아 새로운 객체로 만들어서 setData를 조작
     const onCreate = (author, content, emotion) => {
@@ -28,11 +51,13 @@ function App() {
         setData([newItem, ...data]);
     };
 
+    // 삭제 기능
     const onRemove = (targetId) => {
         const newDiaryList = data.filter((it) => it.id !== targetId);
         setData(newDiaryList);
     };
 
+    // 수정기능
     const onEdit = (targetId, newContent) => {
         setData(data.map((it) => (it.id === targetId ? { ...it, content: newContent } : it)));
     };
