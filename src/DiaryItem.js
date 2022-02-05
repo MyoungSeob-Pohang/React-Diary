@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // 값을 받아 옴, spread로 펼쳐서 넘겨줬으니 하나하나 다 받음
 const DiaryItem = ({ onEdit, onRemove, author, content, emotion, create_date, id }) => {
@@ -71,4 +71,4 @@ const DiaryItem = ({ onEdit, onRemove, author, content, emotion, create_date, id
     );
 };
 
-export default DiaryItem;
+export default React.memo(DiaryItem);

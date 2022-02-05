@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import './App.css';
 import DiaryEditor from './DiaryEditor';
 import DiaryList from './DiaryList';
@@ -37,7 +37,7 @@ function App() {
     }, []);
 
     // 작성자 내용 감정을 전달받아 새로운 객체로 만들어서 setData를 조작
-    const onCreate = (author, content, emotion) => {
+    const onCreate = useCallback((author, content, emotion) => {
         const create_date = new Date().getTime();
 
         const newItem = {
@@ -48,24 +48,38 @@ function App() {
             id: dataId.current,
         };
         dataId.current += 1;
-        setData([newItem, ...data]);
-    };
+        setData((data) => [newItem, ...data]);
+    }, []);
 
     // 삭제 기능
-    const onRemove = (targetId) => {
-        const newDiaryList = data.filter((it) => it.id !== targetId);
-        setData(newDiaryList);
-    };
+    const onRemove = useCallback((targetId) => {
+        setData((data) => data.filter((it) => it.id !== targetId));
+    }, []);
 
     // 수정기능
-    const onEdit = (targetId, newContent) => {
-        setData(data.map((it) => (it.id === targetId ? { ...it, content: newContent } : it)));
-    };
+    const onEdit = useCallback((targetId, newContent) => {
+        setData((data) => data.map((it) => (it.id === targetId ? { ...it, content: newContent } : it)));
+    }, []);
+
+    const getDiaryAnalysis = useMemo(() => {
+        const goodCount = data.filter((it) => it.emotion >= 3).length;
+        const badCount = data.length - goodCount;
+        const goodRatio = (goodCount / data.length) * 100;
+        return { goodCount, badCount, goodRatio };
+    }, [data.length]);
+
+    const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
 
     return (
         <div className="App">
             {/* 조작 함수를 내려 줌 */}
             <DiaryEditor onCreate={onCreate} />
+
+            <div>전체 일기 : {data.length} 개</div>
+            <div>좋은 일기 : {goodCount} 개</div>
+            <div>나쁜 일기 : {badCount} 개</div>
+            <div>좋은 일기 비율 : {goodRatio}% </div>
+
             {/* 데이터만 내려 줌 */}
             <DiaryList onRemove={onRemove} diaryList={data} onEdit={onEdit} />
         </div>
