@@ -1,7 +1,31 @@
-import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useRef, useEffect, useMemo, useCallback, useReducer } from 'react';
 import './App.css';
 import DiaryEditor from './DiaryEditor';
 import DiaryList from './DiaryList';
+
+const reducer = (state, action) => {
+    switch (action.type) {
+        case 'init': {
+            return action.data;
+        }
+        case 'create': {
+            const create_date = new Date().getTime();
+            const newItem = {
+                ...action.data,
+                create_date,
+            };
+            return [newItem, ...state];
+        }
+        case 'remove': {
+            return state.filter((it) => it.id !== action.targetId);
+        }
+        case 'edit': {
+            return state.map((it) => (it.id === action.targetId ? { ...it, content: action.newContent } : it));
+        }
+        default:
+            return state;
+    }
+};
 
 function App() {
     // DiaryEditor에서 setData를 사용하여 조작할 수 있는 함수를 props로 넘기고
@@ -9,7 +33,10 @@ function App() {
     // 리액트는 단반향 데이터이고 같은레벨 끼리는 데이터를 전달할 수 없다. 그래서 이벤트를 끌어올리고 데이터는 내려주는 즉 app에서 데이터를 내려주고 조작하는것을 하면 app 아래 같은 레벨끼리 데이터 송수신이 가능하다.
 
     // 새로운 상태변화 배열 선언
-    const [data, setData] = useState([]);
+    // const [data, setData] = useState([]);
+    // state에서 useReducer로 업그레이드
+    const [data, dispatch] = useReducer(reducer, []);
+
     // useRef를 사용하여 1씩증가하는 값을 만듬
     const dataId = useRef(0);
 
@@ -28,7 +55,7 @@ function App() {
             };
         });
 
-        setData(initData);
+        dispatch({ type: 'init', data: initData });
     };
 
     // Mount 시점에 API 호출
@@ -38,27 +65,18 @@ function App() {
 
     // 작성자 내용 감정을 전달받아 새로운 객체로 만들어서 setData를 조작
     const onCreate = useCallback((author, content, emotion) => {
-        const create_date = new Date().getTime();
-
-        const newItem = {
-            author,
-            content,
-            emotion,
-            create_date,
-            id: dataId.current,
-        };
+        dispatch({ type: 'create', data: { author, content, emotion, id: dataId.current } });
         dataId.current += 1;
-        setData((data) => [newItem, ...data]);
     }, []);
 
     // 삭제 기능
     const onRemove = useCallback((targetId) => {
-        setData((data) => data.filter((it) => it.id !== targetId));
+        dispatch({ type: 'remove', targetId });
     }, []);
 
     // 수정기능
     const onEdit = useCallback((targetId, newContent) => {
-        setData((data) => data.map((it) => (it.id === targetId ? { ...it, content: newContent } : it)));
+        dispatch({ type: 'edit', targetId, newContent });
     }, []);
 
     const getDiaryAnalysis = useMemo(() => {
