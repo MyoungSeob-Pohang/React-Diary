@@ -27,6 +27,9 @@ const reducer = (state, action) => {
     }
 };
 
+export const DiaryStateContext = React.createContext();
+export const DiaryDispatchContext = React.createContext();
+
 function App() {
     // DiaryEditor에서 setData를 사용하여 조작할 수 있는 함수를 props로 넘기고
     // DiaryList에서는 data그대로 넘겨준다.
@@ -88,19 +91,25 @@ function App() {
 
     const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
 
+    const memoizedDispatches = useMemo(() => {
+        return { onCreate, onRemove, onEdit };
+    }, []);
+
     return (
-        <div className="App">
-            {/* 조작 함수를 내려 줌 */}
-            <DiaryEditor onCreate={onCreate} />
+        <DiaryStateContext.Provider value={data}>
+            <DiaryDispatchContext.Provider value={memoizedDispatches}>
+                <div className="App">
+                    <DiaryEditor />
 
-            <div>전체 일기 : {data.length} 개</div>
-            <div>좋은 일기 : {goodCount} 개</div>
-            <div>나쁜 일기 : {badCount} 개</div>
-            <div>좋은 일기 비율 : {goodRatio}% </div>
+                    <div>전체 일기 : {data.length} 개</div>
+                    <div>좋은 일기 : {goodCount} 개</div>
+                    <div>나쁜 일기 : {badCount} 개</div>
+                    <div>좋은 일기 비율 : {goodRatio}% </div>
 
-            {/* 데이터만 내려 줌 */}
-            <DiaryList onRemove={onRemove} diaryList={data} onEdit={onEdit} />
-        </div>
+                    <DiaryList />
+                </div>
+            </DiaryDispatchContext.Provider>
+        </DiaryStateContext.Provider>
     );
 }
 

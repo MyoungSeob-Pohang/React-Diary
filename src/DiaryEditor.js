@@ -1,12 +1,15 @@
 // useRef 는 요소를 선택할 수 있는 주소값을 가진다.
 // useState는 상태를 관리할 수 있게 해준다.
 // 모두 react에 포함되어 있어서 함께 import
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo, useContext } from 'react';
+import { DiaryDispatchContext } from './App';
 
 // DiaryEditor 함수는 전체를 감싸는 함수 이다.
 // 파일명과 같으며 함수를 실행한다.
 // 데이터조작 함수를 받음
-const DiaryEditor = ({ onCreate }) => {
+const DiaryEditor = () => {
+    const { onCreate } = useContext(DiaryDispatchContext);
+
     useEffect(() => {
         console.log('에디터 렌더');
     });

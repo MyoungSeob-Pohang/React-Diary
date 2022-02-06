@@ -1,7 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { DiaryDispatchContext } from './App';
 
 // 값을 받아 옴, spread로 펼쳐서 넘겨줬으니 하나하나 다 받음
-const DiaryItem = ({ onEdit, onRemove, author, content, emotion, create_date, id }) => {
+const DiaryItem = ({ author, content, emotion, create_date, id }) => {
+    const { onRemove, onEdit } = useContext(DiaryDispatchContext);
+
     // 수정 중, 수정 중이 아님의 상태를 저장할 State
     const [isEdit, setIsEdit] = useState(false);
     // toggleIsEdit를 호출하여 isEdit의 값을 반전시킴
