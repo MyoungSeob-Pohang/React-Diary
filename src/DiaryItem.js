@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { DiaryDispatchContext } from './App';
 
 // 값을 받아 옴, spread로 펼쳐서 넘겨줬으니 하나하나 다 받음
